@@ -1,2 +1,20 @@
 # LOR_Reptiles
 爬虫——中国各省专利开放许可
+## 数据来源
+[安徽省](http://www.91ipr.com/openpatlist.jsp)  
+[天津市](https://www.cnipol.com/LicenseTrading/getLicenseList.html)  
+[河北省](https://www.hbips.com/portal/trademark/patentdatabase.html)  
+[福建省](https://zscq.hxee.com.cn/html/list-content-56935181411645444219.html)  
+[江苏省]()  
+[山东省](http://pom.sdips.com.cn/Web/PatentOGL.aspx)  
+[四川省](http://yyxt.cipnet.cn/#/openLicense)  
+[辽宁省](https://www.lnipa.cn/#/operate/patent_supply_mall)  
+[湖北省](https://xsk.uipplus.com/#/openLicense)  
+[广东省](https://zlxk.gpic.gd.cn/#/licensingPatent)  
+[北京市](https://patentol.ctex.cn/)  
+[浙江省](https://www.zjipx.com/kfxk.html#/kfxkList)  
+[上海市](https://www.shsipe.com/property-page/#/openlist)  
+[陕西省](https://www.jmrhip.com/#lic_paten)  
+[广西省](https://zlkfxk.bbwcq.com/)  
+[海南省](https://qszr.ipeh.com.cn/quanshu/specialproject/show.html?id=23)  
+[湖南省](http://124.232.165.110:32380/patentopen/#/patent)  
