@@ -15,6 +15,6 @@
 [浙江省](https://www.zjipx.com/kfxk.html#/kfxkList)  
 [上海市](https://www.shsipe.com/property-page/#/openlist)  
 [陕西省](https://www.jmrhip.com/#lic_paten)  
-[广西省](https://zlkfxk.bbwcq.com/)  
+[广西省](https://zlkfxk.bbwcq.com/kfxkzl.jhtml)  
 [海南省](https://qszr.ipeh.com.cn/quanshu/specialproject/show.html?id=23)  
 [湖南省](http://124.232.165.110:32380/patentopen/#/patent)  

@@ -22,15 +22,160 @@ class ShanXi(Reptiles):
 
 class HuNan(Reptiles):
     def collectData(self):
-        return
+        n_page = self.getPageNum()
+        print("共", n_page, "页")
+        for page_i in range(1, n_page+1):
+            if page_i<n_page:
+                print(page_i)
+                self.nextPage()
+                time.sleep(0.3)
+        df = pd.DataFrame()
+        for id in self.getRequestId():
+            res = self.getResponseBody(id)
+            df = pd.concat([df, pd.DataFrame(res)])
+        return df.drop_duplicates()
+
+    def getResponseBody(self, requestId):
+        response_body = self.br.execute_cdp_cmd('Network.getResponseBody', {'requestId': requestId})
+        data = json.loads(response_body['body'])['bodyData']
+        patent_info_cnt = len(data['list'])
+        data_json = []
+
+        for index in range(0, patent_info_cnt):
+            data_json.append({
+                'patent_id': data['list'][index]['ipc'],
+                'patent_type': data['list'][index]['penterClassName'],
+                'patent_owner': data['list'][index]['applicant'],
+                'license_fee': data['list'][index]['price'],
+                'license_deadline': data['list'][index]['openEndStr'],
+                'create_time': data['list'][index]['createDateStr']
+            })
+        return data_json
+    def getRequestId(self):
+        logs = self.br.get_log("performance")
+        log_xhr_array = []
+        for log_data in logs:
+            message_ = log_data['message']
+            try:
+                log_json = json.loads(message_)
+                log = log_json['message']
+                if log['method'] == 'Network.responseReceived':
+                    type_ = log['params']['type']
+                    id = log['params']['requestId']
+                    data_type = log['params']['response']['url']
+                    if type_.upper() == "XHR" and data_type.find("getPatentopenList") != -1:
+                        log_xhr_array.append(id)
+            except:
+                pass
+        return list(set(log_xhr_array))
+
 
 class HaiNan(Reptiles):
     def collectData(self):
-        return
+        n_page = self.getPageNum()
+        print("共", n_page, "页")
+        for page_i in range(1, n_page+1):
+            if page_i<n_page:
+                print(page_i)
+                self.nextPage()
+                time.sleep(0.3)
+        df = pd.DataFrame()
+        for id in self.getRequestId():
+            res = self.getResponseBody(id)
+            df = pd.concat([df, pd.DataFrame(res)])
+        return df.drop_duplicates()
+
+    def getResponseBody(self, requestId):
+        response_body = self.br.execute_cdp_cmd('Network.getResponseBody', {'requestId': requestId})
+        data = json.loads(response_body['body'])['data']
+        patent_info_cnt = len(data['list'])
+        data_json = []
+
+        for index in range(0, patent_info_cnt):
+            data_json.append({
+                'patent_id': data['list'][index]['patent_sn'],
+                'patent_type': data['list'][index]['type_name'],
+                'patent_owner': data['list'][index]['patent_user'] if data['list'][index]['apply_user']=="" else data['list'][index]['apply_user'],
+                'license_fee': data['list'][index]['suggest_price'],
+                'license_period': data['list'][index]['license_time'],
+                'license_location': data['list'][index]['license_scope'],
+                'create_time': data['list'][index]['create_time']
+            })
+        return data_json
+    def getRequestId(self):
+        logs = self.br.get_log("performance")
+        log_xhr_array = []
+        for log_data in logs:
+            message_ = log_data['message']
+            try:
+                log_json = json.loads(message_)
+                log = log_json['message']
+                if log['method'] == 'Network.responseReceived':
+                    type_ = log['params']['type']
+                    id = log['params']['requestId']
+                    data_type = log['params']['response']['url']
+                    if type_.upper() == "XHR" and data_type.find("show.html?id=23") != -1:
+                        log_xhr_array.append(id)
+            except:
+                pass
+        return list(set(log_xhr_array))
+
+    def nextPage(self):
+        next_btn = self.br.find_element(By.CSS_SELECTOR, "[jp-role='next']")
+        self.br.execute_script("arguments[0].click()", next_btn)
+        self.curr_page = self.curr_page+1
+    def getPageNum(self):
+        return 27
 
 class GuangXi(Reptiles):
     def collectData(self):
-        return
+        n_page = self.getPageNum()
+        print("共", n_page, "页")
+        for page_i in range(1, n_page+1):
+            time.sleep(0.2)
+            if page_i<n_page:
+                self.nextPage()
+        df = pd.DataFrame()
+        for id in self.getRequestId():
+            res = self.getResponseBody(id)
+            df = pd.concat([df, pd.DataFrame(res)])
+        return df.drop_duplicates()
+
+    def getResponseBody(self, requestId):
+        response_body = self.br.execute_cdp_cmd('Network.getResponseBody', {'requestId': requestId})
+        data = json.loads(response_body['body'])['data']
+        patent_info_cnt = len(data['content'])
+        data_json = []
+
+        for index in range(0, patent_info_cnt):
+            data_json.append({
+                'patent_id': data['content'][index]['attr']['zlh']['value'].replace(" ",""),
+                'patent_type': data['content'][index]['attr']['fbzllx']['value'],
+                'patent_owner': data['content'][index]['attr']['zlqr']['value'],
+                'patent_owner_type': data['content'][index]['attr']['tjzlx']['value'],
+                'license_fee': data['content'][index]['attr']['yczff_ycxqefy']['value'],
+                'license_fee_type': data['content'][index]['attr']['xkfybz']['value'],
+                'license_deadline': data['content'][index]['attr']['xkqxjmr']['value'],
+                'createTime': data['content'][index]['createTime']
+            })
+        return data_json
+    def getRequestId(self):
+        logs = self.br.get_log("performance")
+        log_xhr_array = []
+        for log_data in logs:
+            message_ = log_data['message']
+            try:
+                log_json = json.loads(message_)
+                log = log_json['message']
+                if log['method'] == 'Network.responseReceived':
+                    type_ = log['params']['type']
+                    id = log['params']['requestId']
+                    data_type = log['params']['response']['url']
+                    if type_.upper() == "XHR" and data_type.find("page=") != -1:
+                        log_xhr_array.append(id)
+            except:
+                pass
+        return list(set(log_xhr_array))
 
 class ShaanXi(Reptiles):
     def collectData(self):

@@ -123,17 +123,53 @@ if __name__=='__main__':
     # SH.start()
     # SH.exportData(os.path.join(base_path,"上海省.xlsx"))
 
-    SX = ShaanXi(
-        website='https://www.jmrhip.com/#lic_paten',
-        nextpage_xpath="//div[@id='router_main_view']/d-include//d-pagination/d-pagination-num/d-text[@class='num-next']",
-        pagenum_xpath="d-pagination > d-text",
+    # SX = ShaanXi(
+    #     website='https://www.jmrhip.com/#lic_paten',
+    #     nextpage_xpath="//div[@id='router_main_view']/d-include//d-pagination/d-pagination-num/d-text[@class='num-next']",
+    #     pagenum_xpath="d-pagination > d-text",
+    #     rownum_xpath="",
+    #     rownum_class_name="",
+    #     totalnum_xpath=""
+    # )
+    # print("陕西")
+    # SX.start()
+    # SX.exportData(os.path.join(base_path,"陕西省.xlsx"))
+
+    # GX = GuangXi(
+    #     website='https://zlkfxk.bbwcq.com/kfxkzl.jhtml',
+    #     nextpage_xpath="//body/section[1]/div[1]/div[1]/div[4]/div[1]/div[1]/button[2]",
+    #     pagenum_xpath="//body/section[1]/div[1]/div[1]/div[4]/div[1]/div[1]/ul[1]",
+    #     rownum_xpath="",
+    #     rownum_class_name="",
+    #     totalnum_xpath=""
+    # )
+    # print("广西")
+    # GX.start()
+    # GX.exportData(os.path.join(base_path,"广西省.xlsx"))
+
+    # HN = HaiNan(
+    #     website='https://qszr.ipeh.com.cn/quanshu/specialproject/show.html?id=23',
+    #     nextpage_xpath="//div[#'page-box']/div[@innertext='>']",
+    #     pagenum_xpath="//div[@id='page-box']",
+    #     rownum_xpath="",
+    #     rownum_class_name="",
+    #     totalnum_xpath=""
+    # )
+    # print("海南")
+    # HN.start()
+    # HN.exportData(os.path.join(base_path,"海南省.xlsx"))
+
+    HuN = HuNan(
+        website='http://124.232.165.110:32380/patentopen/#/patent',
+        nextpage_xpath="//body/div[@id='app']/div[2]/div[2]/div[1]/button[2]",
+        pagenum_xpath="//body/div[@id='app']/div[2]/div[2]/div[1]/ul[1]",
         rownum_xpath="",
         rownum_class_name="",
         totalnum_xpath=""
     )
-    print("陕西")
-    SX.start()
-    SX.exportData(os.path.join(base_path,"陕西省.xlsx"))
+    print("湖南")
+    HuN.start()
+    HuN.exportData(os.path.join(base_path,"湖南省.xlsx"))
 
 
 
