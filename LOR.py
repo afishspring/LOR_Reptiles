@@ -3,6 +3,7 @@ import json
 import time
 import re
 import os
+import datetime
 import pandas as pd
 from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
 from selenium import webdriver
@@ -33,63 +34,206 @@ class GuangXi(Reptiles):
 
 class ShaanXi(Reptiles):
     def collectData(self):
-        return
+        n_page = self.getPageNum()
+        print("共", n_page, "页")
+        for page_i in range(1, n_page+1):
+            time.sleep(0.2)
+            if page_i<n_page:
+                self.nextPage()
+        df = pd.DataFrame()
+        for id in self.getRequestId():
+            res = self.getResponseBody(id)
+            df = pd.concat([df, pd.DataFrame(res)])
+        return df.drop_duplicates()
+
+    def getResponseBody(self, requestId):
+        response_body = self.br.execute_cdp_cmd('Network.getResponseBody', {'requestId': requestId})
+        data = json.loads(response_body['body'])['data']
+        patent_info_cnt = len(data['list'])
+        data_json = []
+
+        for index in range(0, patent_info_cnt):
+            licenseTimeStart = time.strftime("%Y-%m-%d", time.localtime(data['list'][index]['licenseTimeStart']/1000))
+            licenseTimeEnd = time.strftime("%Y-%m-%d", time.localtime(data['list'][index]['licenseTimeEnd']/1000))
+            d1 = datetime.datetime.strptime(licenseTimeStart, '%Y-%m-%d')
+            d2 = datetime.datetime.strptime(licenseTimeEnd, '%Y-%m-%d')
+
+            patent_owner_list = data['list'][index]['assigneeList']
+            data_json.append({
+                'patent_id': data['list'][index]['appNumber'],
+                'patent_type': data['list'][index]['type'],
+                'patent_owner': patent_owner_list[0] if len(patent_owner_list)>0 else "null",
+                'license_fee': data['list'][index]['licenseFee'],
+                'license_deadline': licenseTimeEnd,
+                'license_period': int((d2 - d1).days / 365),
+                'license_location': data['list'][index]['licenseArea']
+            })
+        return data_json
+    def getRequestId(self):
+        logs = self.br.get_log("performance")
+        log_xhr_array = []
+        for log_data in logs:
+            message_ = log_data['message']
+            try:
+                log_json = json.loads(message_)
+                log = log_json['message']
+                if log['method'] == 'Network.responseReceived':
+                    type_ = log['params']['type']
+                    id = log['params']['requestId']
+                    data_type = log['params']['response']['url']
+                    if type_.upper() == "XHR" and data_type.find("pageNo=") != -1:
+                        log_xhr_array.append(id)
+            except:
+                pass
+        return list(set(log_xhr_array))
+
+    def getPageNum(self):
+        time.sleep(2)
+        return int(re.findall(r"\d+", self.br.find_element(By.CSS_SELECTOR, self.pagenum_xpath).text)[0])
 
 class ShangHai(Reptiles):
     def collectData(self):
-        return
+        n_page = self.getPageNum()
+        print("共", n_page, "页")
+        for page_i in range(1, n_page+1):
+            time.sleep(0.2)
+            if page_i<n_page:
+                self.nextPage()
+        df = pd.DataFrame()
+        for id in self.getRequestId():
+            res = self.getResponseBody(id)
+            df = pd.concat([df, pd.DataFrame(res)])
+        return df.drop_duplicates()
+
+    def getResponseBody(self, requestId):
+        response_body = self.br.execute_cdp_cmd('Network.getResponseBody', {'requestId': requestId})
+        data = json.loads(response_body['body'])['data']
+        patent_info_cnt = len(data)
+        data_json = []
+
+        for index in range(0, patent_info_cnt):
+            content = data[index]['content']
+            content = re.sub(r"<[^>]+>", "", content)
+            content = content.replace("&nbsp;", "")
+            content = content.replace(" ", "")
+            patent_id_pattern = re.findall(r"专利号：(.+?)专利权人：", content)
+            patent_type_pattern = re.findall(r"专利类型：(.+?)专利号：", content)
+            patent_owner_pattern = re.findall(r"专利权人：(.+?)许可范围：", content)
+            license_fee_pattern = re.findall(r"许可使用费：(.+?)许可使用费支付方式：", content)
+            license_fee_type_pattern = re.findall(r"许可使用费支付方式：(.*?)交易中心联系人：", content)
+            license_deadline_pattern = re.findall(r"许可期限届满日：(\d+年\d+月\d+日)", content)
+            license_location_pattern = re.findall(r"许可范围：(.+?)许可期限届满日", content)
+            data_json.append({
+                'patent_id': patent_id_pattern[0] if len(patent_id_pattern)>0 else "null",
+                'patent_type': patent_type_pattern[0] if len(patent_type_pattern)>0 else "null",
+                'patent_owner': patent_owner_pattern[0] if len(patent_owner_pattern)>0 else "null",
+                'license_fee': license_fee_pattern[0] if len(license_fee_pattern)>0 else "null",
+                'license_fee_type': license_fee_type_pattern[0] if len(license_fee_type_pattern)>0 else "null",
+                'license_deadline': license_deadline_pattern[0] if len(license_deadline_pattern)>0 else "null",
+                'license_location': license_location_pattern[0] if len(license_location_pattern)>0 else "null",
+                'create_time': data[index]['createTime']
+            })
+        return data_json
+    def getRequestId(self):
+        logs = self.br.get_log("performance")
+        log_xhr_array = []
+        for log_data in logs:
+            message_ = log_data['message']
+            try:
+                log_json = json.loads(message_)
+                log = log_json['message']
+                if log['method'] == 'Network.responseReceived':
+                    type_ = log['params']['type']
+                    id = log['params']['requestId']
+                    data_type = log['params']['response']['url']
+                    if type_.upper() == "XHR" and data_type.find("newsPage?page=") != -1:
+                        log_xhr_array.append(id)
+            except:
+                pass
+        return list(set(log_xhr_array))
 
 class ZheJiang(Reptiles):
     def collectData(self):
-        df1 = self.collectCategoryData("免费", "//div[contains(text(),'免费')]")
-        df2 = self.collectCategoryData("免费", "//div[contains(text(),'收费')]")
-        df3 = self.collectCategoryData("免费", "//div[contains(text(),'绿色')]")
-        return pd.concat([df1, df2, df3])
+        href_list_1 = self.collectCategoryData("免费", "//div[contains(text(),'免费')]")
+        href_list_2 = self.collectCategoryData("收费", "//div[contains(text(),'收费')]")
+        href_list_3 = self.collectCategoryData("绿色", "//div[contains(text(),'绿色')]")
+        href_list = href_list_1 + href_list_2 + href_list_3
+        for href in href_list:
+            self.br.execute_script("window.open(arguments[0],'_self','')", href)
+            self.br.back()
+            time.sleep(0.1)
+        detail_list, data_list = self.getRequestId()
+        data_1 = []
+        data_2 = []
+        for id in detail_list:
+            data_1.append(self.getResponseBody("detail", id))
+        for id in data_list:
+            data_2.append(self.getResponseBody("data", id))
+        data_1 = pd.DataFrame(data_1)
+        data_2 = pd.DataFrame(data_2)
+        return data_1.set_index("id").join(data_2.set_index("id"), on="id", how="inner").reset_index().drop_duplicates()
 
     def collectCategoryData(self, category_type, category_xpath):
         self.br.find_element(By.XPATH, category_xpath).click()
+        self.br.find_element(By.XPATH, self.pagenum_xpath + "/li[3]").click()
         n_page = self.getPageNum()
         print(category_type, "共", n_page, "页")
-        data = []
+
+        href_list = []
         for page_i in range(1, n_page+1):
             rows = self.getRowNum(page_i, n_page)
             print(page_i, "页", rows, "行")
             for index in range(1, rows + 1):
-                data.append(self.getTuple(index))
+                href_list.append(
+                    self.br.find_element(By.XPATH,
+                                         self.rownum_xpath + "/li[" + str(index) + "]/a[1]").get_attribute('href')
+                )
             if page_i < n_page:
                 self.nextPage()
-                time.sleep(2)
-        variables = list(data[0].keys())
-        return pd.DataFrame([[i[j] for j in variables] for i in data], columns=variables)
+                time.sleep(0.5)
+        return href_list
 
-
-    def getTuple(self, index):
-        detail_btn = self.br.find_element(By.XPATH, self.rownum_xpath + "/li[" + str(index) + "]/a[1]")
-        detail_btn.click()
-        ws = self.br.window_handles
-        self.br.switch_to.window(ws[1])
-        time.sleep(2)
-        self.br.find_element(By.XPATH, "//div[contains(text(),'许可说明')]").click()
-        patent_id = self.br.find_element(By.XPATH, "//span[contains(text(),'申请号')]").text[4:]
-        patent_owner = self.br.find_element(By.XPATH, "/html[1]/body[1]/div[1]/div[1]/div[2]/div[1]/div[2]/div[1]/div[4]/div[1]/div[1]/div[1]/p[2]/span[6]")
-        patent_type = self.br.find_element(By.XPATH, "/html[1]/body[1]/div[1]/div[1]/div[2]/div[1]/div[2]/div[1]/div[4]/div[1]/div[1]/div[1]/p[1]/span[2]/span[2]").text
-        license_fee = self.br.find_element(By.XPATH, "//body/div[@id='app']/div[1]/div[2]/div[1]/div[2]/div[1]/div[2]/div[4]/div[1]/table[1]/tr[1]/td[1]/span[1]").text
-        license_period = self.br.find_element(By.XPATH, "/html[1]/body[1]/div[1]/div[1]/div[2]/div[1]/div[2]/div[2]/div[1]/div[3]/div[3]/ul[1]/li[2]/span[2]").text
-        license_location = self.br.find_element(By.XPATH, "/html[1]/body[1]/div[1]/div[1]/div[2]/div[1]/div[2]/div[2]/div[1]/div[3]/div[3]/ul[1]/li[3]/span[2]").text
-        license_deadline = self.br.find_element(By.XPATH, "/html[1]/body[1]/div[1]/div[1]/div[2]/div[1]/div[2]/div[2]/div[1]/div[3]/div[3]/ul[1]/li[1]/span[2]").text
-
-        self.br.close()
-        self.br.switch_to.window(ws[0])
-        return {
-            'patent_id': patent_id,
-            'patent_type': patent_type,
-            'patent_owner': patent_owner,
-            'license_deadline': license_deadline,
-            'license_fee': license_fee,
-            'license_period': license_period,
-            'license_location': license_location
-        }
-
+    def getResponseBody(self, type, requestId):
+        response_body = self.br.execute_cdp_cmd('Network.getResponseBody', {'requestId': requestId})
+        if type=="detail":
+            data = json.loads(response_body['body'])['data']
+            return {
+                'id': data['PrjId'],
+                'patent_owner_type': data['RIGHTTYPE'],
+                'license_fee': data['XKSYFBZSM'],
+                'license_deadline': data['XKSMJMRQ1'],
+                'license_location': data['XKDYFW_NOTE'],
+                'license_period': data['DCXKQX']
+            }
+        else:
+            data = json.loads(response_body['body'])['data'][0]
+            return {
+                'id': data['tprj_info_ext_ID'],
+                'patent_id': data['ZLBH'],
+                'patent_type': data['ZLLX_NOTE'],
+                'patent_owner': data['ZLQR']
+            }
+    def getRequestId(self):
+        logs = self.br.get_log("performance")
+        log_xhr_detail_array = []
+        log_xhr_data_array = []
+        for log_data in logs:
+            message_ = log_data['message']
+            try:
+                log_json = json.loads(message_)
+                log = log_json['message']
+                if log['method'] == 'Network.responseReceived':
+                    type_ = log['params']['type']
+                    id = log['params']['requestId']
+                    data_type = log['params']['response']['url']
+                    if type_.upper() == "XHR":
+                        if data_type.find("Detail") != -1:
+                            log_xhr_detail_array.append(id)
+                        elif data_type.find("Data") != -1:
+                            log_xhr_data_array.append(id)
+            except:
+                pass
+        return log_xhr_detail_array, log_xhr_data_array
     def nextPage(self):
         bar = self.br.find_element(By.XPATH, self.pagenum_xpath)
         bar_cnt = len(bar.find_elements(By.TAG_NAME, "li"))

@@ -16,6 +16,10 @@ class Reptiles(object):
     def __init__(self, website, nextpage_xpath, totalnum_xpath, pagenum_xpath, rownum_xpath, rownum_class_name):
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_experimental_option('w3c', True)
+        prefs = {"profile.managed_default_content_settings.images": 2, 'permissions.default.stylesheet': 2}
+        chrome_options.add_experimental_option("prefs", prefs)
+        chrome_options.add_argument("--disk-cache-size=1073741824")
+        chrome_options.add_argument("--media-cache-size=1073741824")
         caps = DesiredCapabilities.CHROME
         caps["goog:loggingPrefs"] = {"performance": "ALL"}
         self.br = webdriver.Chrome(desired_capabilities=caps, options=chrome_options)
@@ -34,6 +38,7 @@ class Reptiles(object):
         self.rownum_class_name = rownum_class_name
         self.data = pd.DataFrame()
         self.curr_page = 1
+        self.br.implicitly_wait(5)
 
     def start(self):
         self.openWebSite(self.website)

@@ -98,17 +98,42 @@ if __name__=='__main__':
     # BJ.start()
     # BJ.exportData(os.path.join(base_path,"北京省.xlsx"))
 
-    ZJ = ZheJiang(
-        website='https://www.zjipx.com/kfxk.html#/kfxkList',
-        nextpage_xpath="//body/div[@id='app']/div[1]/div[2]/div[1]/div[5]/div[1]/div[1]/div[2]/ul[1]/li[10]",
-        pagenum_xpath="//body/div[@id='app']/div[1]/div[2]/div[1]/div[5]/div[1]/div[1]/div[2]/ul[1]",
-        rownum_xpath="//body/div[@id='app']/div[1]/div[2]/div[1]/div[5]/div[1]/div[1]/div[1]/ul[1]",
+    # 数据量太大，内存不够
+    # ZJ = ZheJiang(
+    #     website='https://www.zjipx.com/kfxk.html#/kfxkList',
+    #     nextpage_xpath="//body/div[@id='app']/div[1]/div[2]/div[1]/div[5]/div[1]/div[1]/div[2]/ul[1]/li[10]",
+    #     pagenum_xpath="//body/div[@id='app']/div[1]/div[2]/div[1]/div[5]/div[1]/div[1]/div[2]/ul[1]",
+    #     rownum_xpath="//body/div[@id='app']/div[1]/div[2]/div[1]/div[5]/div[1]/div[1]/div[1]/ul[1]",
+    #     rownum_class_name="",
+    #     totalnum_xpath=""
+    # )
+    # print("浙江")
+    # ZJ.start()
+    # ZJ.exportData(os.path.join(base_path,"浙江省.xlsx"))
+
+    # SH = ShangHai(
+    #     website='https://www.shsipe.com/property-page/#/openlist',
+    #     nextpage_xpath="//body/div[@id='app']/div[1]/div[2]/div[15]/div[1]/button[2]",
+    #     pagenum_xpath="//body/div[@id='app']/div[1]/div[2]/div[15]/div[1]/ul[1]",
+    #     rownum_xpath="",
+    #     rownum_class_name="",
+    #     totalnum_xpath=""
+    # )
+    # print("上海")
+    # SH.start()
+    # SH.exportData(os.path.join(base_path,"上海省.xlsx"))
+
+    SX = ShaanXi(
+        website='https://www.jmrhip.com/#lic_paten',
+        nextpage_xpath="//div[@id='router_main_view']/d-include//d-pagination/d-pagination-num/d-text[@class='num-next']",
+        pagenum_xpath="d-pagination > d-text",
+        rownum_xpath="",
         rownum_class_name="",
         totalnum_xpath=""
     )
-    print("浙江")
-    ZJ.start()
-    ZJ.exportData(os.path.join(base_path,"浙江省.xlsx"))
+    print("陕西")
+    SX.start()
+    SX.exportData(os.path.join(base_path,"陕西省.xlsx"))
 
 
 
