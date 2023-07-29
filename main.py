@@ -40,7 +40,6 @@ if __name__=='__main__':
     # HB.start()
     # HB.exportData(os.path.join(base_path,"河北省.xlsx"))
 
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     FJ = FuJian(
         website='https://zscq.hxee.com.cn/html/list-content-56935181411645444219.html',
         next_page_xpath="//a[contains(text(),'下一页')]",

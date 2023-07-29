@@ -370,23 +370,36 @@ class JiangSu(Reptiles_XHR):
         return data_json
 
 class FuJian(Reptiles_DOM):
+    def collectData(self):
+        n_page = self.getPageNum()
+        print("共", n_page, "页")
+        href_list = []
+        for page_i in range(1, n_page + 1):
+            rows = self.getRowNum(page_i, n_page)
+            print(page_i, "页", rows, "行")
+            for index in range(1, rows + 1):
+                href = self.br.find_element(By.XPATH, "//body/div[4]/div[1]/div[2]/div[" + str(index) + "]/h4[1]/a[1]")
+                href_list.append(href.get_attribute('href'))
+            if page_i < n_page:
+                self.nextPage()
+        data = []
+        for href in href_list:
+            self.br.execute_script("window.open(arguments[0],'_self','')", href)
+            data.append(self.getTuple(-1))
+            self.br.back()
+            time.sleep(0.1)
+        variables = list(data[0].keys())
+        return pd.DataFrame([[i[j] for j in variables] for i in data], columns=variables)
+
     def getPageNum(self):
         return int(self.br.find_element(By.XPATH, "//span[@id='tnum']").text)
     def getTuple(self, index):
-        detail_btn = self.br.find_element(By.XPATH, "//body/div[4]/div[1]/div[2]/div[" + str(index) + "]/h4[1]/a[1]")
-        detail_btn.click()
-        ws = self.br.window_handles
-        self.br.switch_to.window(ws[1])
-
         patent_id = self.br.find_element(By.XPATH, "//span[contains(text(),'专利号')]").text[4:]
         patent_owner = self.br.find_element(By.XPATH, "//span[contains(text(),'专利权人')]").text[5:]
         patent_type = self.br.find_element(By.XPATH, "//span[@class='patenttype-type']").text
         license_fee_type = self.br.find_element(By.XPATH, "//span[contains(text(),'许可费用')]").text[5:]
         license_location = self.br.find_element(By.XPATH, "//span[contains(text(),'许可地域范围')]").text[7:]
         license_deadline = self.br.find_element(By.XPATH, "//span[@id='notice_time ']").text
-
-        self.br.close()
-        self.br.switch_to.window(ws[0])
         return {
             'patent_id': patent_id,
             'patent_type': patent_type,
