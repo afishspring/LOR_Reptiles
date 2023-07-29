@@ -2,20 +2,27 @@ from LOR import AnHui, TianJin, HeBei, FuJian, JiangSu, ShanDong, SiChuan, LiaoN
 import os
 
 if __name__=='__main__':
-    base_path="D:/专利许可与诉讼/LOR"
+    base_path = "D:/专利许可与诉讼/LOR"
 
     # AH = AnHui(
     #     website='http://www.91ipr.com/openpatlist.jsp',
-    #     nextpage_xpath="",
-    #     totalnum_xpath="")
+    #     table_xpath="//tbody",
+    #     table_tuple_type="tag name",
+    #     table_tuple_class_name="tr"
+    # )
     # print("安徽")
     # AH.start()
     # AH.exportData(os.path.join(base_path,"安徽省.xlsx"))
 
     # TJ = TianJin(
     #     website='https://www.cnipol.com/LicenseTrading/getLicenseList.html',
-    #     nextpage_xpath="//a[contains(text(),'下一页')]",
-    #     totalnum_xpath=""
+    #     next_page_xpath="//a[contains(text(),'下一页')]",
+    #     bar_xpath="//body/section[2]/div[3]",
+    #     bar_child_tag_name="a",
+    #     n_page_offset=2,
+    #     table_xpath="//tbody",
+    #     table_tuple_type= "tag name",
+    #     table_tuple_class_name="tr"
     # )
     # print("天津")
     # TJ.start()
@@ -23,27 +30,45 @@ if __name__=='__main__':
 
     # HB = HeBei(
     #     website='https://www.hbips.com/portal/trademark/patentdatabase.html',
-    #     nextpage_xpath="//a[contains(text(),'»')]",
-    #     totalnum_xpath=""
+    #     next_page_xpath="//a[contains(text(),'»')]",
+    #     bar_xpath="//body/ul[1]/ul[1]",
+    #     bar_child_tag_name="li",
+    #     n_page_offset=1,
+    #     table_xpath="//body/article[@id='zlsclist']/ul[1]",
     # )
     # print("河北")
     # HB.start()
     # HB.exportData(os.path.join(base_path,"河北省.xlsx"))
 
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # FJ = FuJian(
-    #     website='https://zscq.hxee.com.cn/html/list-content-56935181411645444219.html',
-    #     nextpage_xpath="//a[contains(text(),'下一页')]",
-    #     totalnum_xpath=""
+    FJ = FuJian(
+        website='https://zscq.hxee.com.cn/html/list-content-56935181411645444219.html',
+        next_page_xpath="//a[contains(text(),'下一页')]",
+        table_xpath="//body/div[4]/div[1]/div[2]",
+        table_tuple_class_name="project-wrap"
+    )
+    print("福建")
+    FJ.start()
+    FJ.exportData(os.path.join(base_path,"福建省.xlsx"))
+
+    # 江苏，专利权人类型不明确
+    # JS = JiangSu(
+    #     website='https://www.jsipp.cn/zhfw/app/zhfw.app?id=SY&:pageCache=createPage&:newData=true&:drillPage=%2Fzhfw%2Fapp%2Fzhfw.app%2Fzhfw%2FYPTJY%2FZLKFXK%2FKFXK_ALL.spg%3F:newData%3Dtrue&:drillPageTitle=%E5%BC%80%E6%94%BE%E8%AE%B8%E5%8F%AF%E5%88%97%E8%A1%A8',
+    #     next_page_xpath="//span[contains(text(),'下一页')]",
+    #     bar_xpath="//body/div[1]/div[1]/div[5]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/div[3]/div[2]/div[1]",
+    #     bar_child_tag_name="span",
+    #     n_page_offset=3,
+    #     xhr_pattern="queryData"
     # )
-    # print("福建")
-    # FJ.start()
-    # FJ.exportData(os.path.join(base_path,"福建省.xlsx"))
+    # print("江苏")
+    # JS.start()
+    # JS.exportData(os.path.join(base_path,"江苏省.xlsx"))
 
     # SD = ShanDong(
     #     website='http://pom.sdips.com.cn/Web/PatentOGL.aspx',
-    #     nextpage_xpath="//a[contains(text(),'下一页')]",
-    #     totalnum_xpath=""
+    #     next_page_xpath="//a[contains(text(),'下一页')]",
+    #     table_xpath="//body/div[3]/div[1]/div[2]/form[1]/ul[1]",
+    #     table_tuple_class_name="clearfix"
     # )
     # print("山东")
     # SD.start()
@@ -51,36 +76,33 @@ if __name__=='__main__':
 
     # SC = SiChuan(
     #     website='http://yyxt.cipnet.cn/#/openLicense',
-    #     nextpage_xpath="//body/div[@id='app']/div[2]/div[2]/div[2]/div[1]/div[1]/div[8]/div[1]/button[2]",
-    #     totalnum_xpath="/html[1]/body[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/div[8]/div[1]/span[1]",
-    #     pagenum_xpath= "//body/div[@id='app']/div[2]/div[2]/div[2]/div[1]/div[1]/div[8]/div[1]/ul[1]",
-    #     rownum_xpath= "/html[1]/body[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/div[7]/div[1]/div[3]/table[1]/tbody[1]",
-    #     rownum_class_name= "el-table__row"
+    #     next_page_xpath="//body/div[@id='app']/div[2]/div[2]/div[2]/div[1]/div[1]/div[8]/div[1]/button[2]",
+    #     bar_xpath="//body/div[@id='app']/div[2]/div[2]/div[2]/div[1]/div[1]/div[8]/div[1]/ul[1]",
+    #     bar_child_tag_name="li",
+    #     xhr_pattern="listopenlicense?page="
     # )
     # print("四川")
     # SC.start()
     # SC.exportData(os.path.join(base_path,"四川省.xlsx"))
 
-    # 数据获取不全，有“暂无”
     # LN = LiaoNing(
     #     website='https://www.lnipa.cn/#/operate/patent_supply_mall',
-    #     nextpage_xpath="//body/div[@id='app']/div[1]/div[1]/div[2]/div[2]/div[3]/div[2]/button[2]",
-    #     pagenum_xpath="//body/div[@id='app']/div[1]/div[1]/div[2]/div[2]/div[3]/div[2]/ul[1]",
-    #     rownum_xpath="//body/div[@id='app']/div[1]/div[1]/div[2]/div[2]/div[3]/div[1]",
-    #     rownum_class_name="psm_item",
-    #     totalnum_xpath=""
+    #     next_page_xpath="//body/div[@id='app']/div[1]/div[1]/div[2]/div[2]/div[3]/div[2]/button[2]",
+    #     bar_xpath="//body/div[@id='app']/div[1]/div[1]/div[2]/div[2]/div[3]/div[2]/ul[1]",
+    #     bar_child_tag_name="li",
+    #     xhr_pattern="all_pass_page?page="
     # )
     # print("辽宁")
     # LN.start()
     # LN.exportData(os.path.join(base_path,"辽宁省.xlsx"))
 
+    # 网站登录不稳定，数据收集不全
     # GD = GuangDong(
     #     website='https://zlxk.gpic.gd.cn/#/licensingPatent',
-    #     nextpage_xpath="/html//el-content-right[@id='content-wrapper-right']//div[@class='el-pagination is-background']/button[2]",
-    #     pagenum_xpath="/html//el-content-right[@id='content-wrapper-right']//ul[@class='el-pager']",
-    #     rownum_xpath="//div[@id='tableColumn']//table[@class='el-table__body']",
-    #     rownum_class_name="el-table__row",
-    #     totalnum_xpath=""
+    #     next_page_xpath="/html//el-content-right[@id='content-wrapper-right']/div[@class='pagination-container']//input[@type='number']",
+    #     bar_xpath="/html//el-content-right[@id='content-wrapper-right']//ul[@class='el-pager']",
+    #     bar_child_tag_name="li",
+    #     xhr_pattern="list?page="
     # )
     # print("广东")
     # GD.start()
@@ -88,11 +110,7 @@ if __name__=='__main__':
 
     # BJ = BeiJing(
     #     website='https://patentol.ctex.cn/',
-    #     nextpage_xpath="//a[contains(text(),'下一页')]",
-    #     pagenum_xpath="",
-    #     rownum_xpath="",
-    #     rownum_class_name="",
-    #     totalnum_xpath=""
+    #     next_page_xpath="//a[contains(text(),'下一页')]"
     # )
     # print("北京")
     # BJ.start()
@@ -113,11 +131,10 @@ if __name__=='__main__':
 
     # SH = ShangHai(
     #     website='https://www.shsipe.com/property-page/#/openlist',
-    #     nextpage_xpath="//body/div[@id='app']/div[1]/div[2]/div[15]/div[1]/button[2]",
-    #     pagenum_xpath="//body/div[@id='app']/div[1]/div[2]/div[15]/div[1]/ul[1]",
-    #     rownum_xpath="",
-    #     rownum_class_name="",
-    #     totalnum_xpath=""
+    #     next_page_xpath="//body/div[@id='app']/div[1]/div[2]/div[15]/div[1]/button[2]",
+    #     bar_xpath="//body/div[@id='app']/div[1]/div[2]/div[15]/div[1]/ul[1]",
+    #     bar_child_tag_name="li",
+    #     xhr_pattern="newsPage?page="
     # )
     # print("上海")
     # SH.start()
@@ -125,11 +142,9 @@ if __name__=='__main__':
 
     # SX = ShaanXi(
     #     website='https://www.jmrhip.com/#lic_paten',
-    #     nextpage_xpath="//div[@id='router_main_view']/d-include//d-pagination/d-pagination-num/d-text[@class='num-next']",
-    #     pagenum_xpath="d-pagination > d-text",
-    #     rownum_xpath="",
-    #     rownum_class_name="",
-    #     totalnum_xpath=""
+    #     next_page_xpath="//div[@id='router_main_view']/d-include//d-pagination/d-pagination-num/d-text[@class='num-next']",
+    #     bar_xpath="d-pagination > d-text",
+    #     xhr_pattern="pageNo="
     # )
     # print("陕西")
     # SX.start()
@@ -137,11 +152,11 @@ if __name__=='__main__':
 
     # GX = GuangXi(
     #     website='https://zlkfxk.bbwcq.com/kfxkzl.jhtml',
-    #     nextpage_xpath="//body/section[1]/div[1]/div[1]/div[4]/div[1]/div[1]/button[2]",
-    #     pagenum_xpath="//body/section[1]/div[1]/div[1]/div[4]/div[1]/div[1]/ul[1]",
-    #     rownum_xpath="",
-    #     rownum_class_name="",
-    #     totalnum_xpath=""
+    #     next_page_xpath="//body/section[1]/div[1]/div[1]/div[4]/div[1]/div[1]/button[2]",
+    #     bar_xpath="//body/section[1]/div[1]/div[1]/div[4]/div[1]/div[1]/ul[1]",
+    #     bar_child_tag_name="li",
+    #     n_page_offset=0,
+    #     xhr_pattern="page="
     # )
     # print("广西")
     # GX.start()
@@ -149,27 +164,27 @@ if __name__=='__main__':
 
     # HN = HaiNan(
     #     website='https://qszr.ipeh.com.cn/quanshu/specialproject/show.html?id=23',
-    #     nextpage_xpath="//div[#'page-box']/div[@innertext='>']",
-    #     pagenum_xpath="//div[@id='page-box']",
-    #     rownum_xpath="",
-    #     rownum_class_name="",
-    #     totalnum_xpath=""
+    #     next_page_xpath="//div[contains(text(),'>')]",
+    #     bar_xpath="//div[@id='page-box']",
+    #     bar_child_tag_name="div",
+    #     n_page_offset=2,
+    #     xhr_pattern="show.html?id=23"
     # )
     # print("海南")
     # HN.start()
     # HN.exportData(os.path.join(base_path,"海南省.xlsx"))
 
-    HuN = HuNan(
-        website='http://124.232.165.110:32380/patentopen/#/patent',
-        nextpage_xpath="//body/div[@id='app']/div[2]/div[2]/div[1]/button[2]",
-        pagenum_xpath="//body/div[@id='app']/div[2]/div[2]/div[1]/ul[1]",
-        rownum_xpath="",
-        rownum_class_name="",
-        totalnum_xpath=""
-    )
-    print("湖南")
-    HuN.start()
-    HuN.exportData(os.path.join(base_path,"湖南省.xlsx"))
+    # HuN = HuNan(
+    #     website='http://124.232.165.110:32380/patentopen/#/patent',
+    #     next_page_xpath="//body/div[@id='app']/div[2]/div[2]/div[1]/button[2]",
+    #     bar_xpath="//body/div[@id='app']/div[2]/div[2]/div[1]/ul[1]",
+    #     bar_child_tag_name="li",
+    #     n_page_offset=0,
+    #     xhr_pattern="getPatentopenList"
+    # )
+    # print("湖南")
+    # HuN.start()
+    # HuN.exportData(os.path.join(base_path,"湖南省.xlsx"))
 
 
 

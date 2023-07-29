@@ -5,7 +5,7 @@
 [天津市](https://www.cnipol.com/LicenseTrading/getLicenseList.html)  
 [河北省](https://www.hbips.com/portal/trademark/patentdatabase.html)  
 [福建省](https://zscq.hxee.com.cn/html/list-content-56935181411645444219.html)  
-[江苏省]()  
+[江苏省](https://www.jsipp.cn/zhfw/app/zhfw.app?id=SY&:pageCache=createPage&:newData=true&:drillPage=%2Fzhfw%2Fapp%2Fzhfw.app%2Fzhfw%2FYPTJY%2FZLKFXK%2FKFXK_ALL.spg%3F:newData%3Dtrue&:drillPageTitle=%E5%BC%80%E6%94%BE%E8%AE%B8%E5%8F%AF%E5%88%97%E8%A1%A8)  
 [山东省](http://pom.sdips.com.cn/Web/PatentOGL.aspx)  
 [四川省](http://yyxt.cipnet.cn/#/openLicense)  
 [辽宁省](https://www.lnipa.cn/#/operate/patent_supply_mall)  
