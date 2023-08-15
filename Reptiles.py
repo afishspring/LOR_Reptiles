@@ -45,13 +45,13 @@ class Reptiles(object):
         self.openWebSite(self.website)
         self.data = self.collectData()
         print(self.data)
-        # self.br.quit()
+        self.br.quit()
     def exportData(self, path):
         self.data.to_excel(path, index=False)
     def openWebSite(self, website):
         self.br.get(website)
         self.br.maximize_window()
-        time.sleep(2)
+        self.br.implicitly_wait(10)
         # zoom_out = "document.body.style.zoom='0.25'"
         # self.br.execute_script(zoom_out)
     def nextPage(self):

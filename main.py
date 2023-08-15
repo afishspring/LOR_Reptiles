@@ -2,7 +2,7 @@ from LOR import AnHui, TianJin, HeBei, FuJian, JiangSu, ShanDong, SiChuan, LiaoN
 import os
 
 if __name__=='__main__':
-    base_path = "D:/专利许可与诉讼/LOR"
+    base_path = "data"
 
     # AH = AnHui(
     #     website='http://www.91ipr.com/openpatlist.jsp',
@@ -40,15 +40,15 @@ if __name__=='__main__':
     # HB.start()
     # HB.exportData(os.path.join(base_path,"河北省.xlsx"))
 
-    FJ = FuJian(
-        website='https://zscq.hxee.com.cn/html/list-content-56935181411645444219.html',
-        next_page_xpath="//a[contains(text(),'下一页')]",
-        table_xpath="//body/div[4]/div[1]/div[2]",
-        table_tuple_class_name="project-wrap"
-    )
-    print("福建")
-    FJ.start()
-    FJ.exportData(os.path.join(base_path,"福建省.xlsx"))
+    # FJ = FuJian(
+    #     website='https://zscq.hxee.com.cn/html/list-content-56935181411645444219.html',
+    #     next_page_xpath="//a[contains(text(),'下一页')]",
+    #     table_xpath="//body/div[4]/div[1]/div[2]",
+    #     table_tuple_class_name="project-wrap"
+    # )
+    # print("福建")
+    # FJ.start()
+    # FJ.exportData(os.path.join(base_path,"福建省.xlsx"))
 
     # 江苏，专利权人类型不明确
     # JS = JiangSu(
@@ -95,7 +95,7 @@ if __name__=='__main__':
     # LN.start()
     # LN.exportData(os.path.join(base_path,"辽宁省.xlsx"))
 
-    # 网站登录不稳定，数据收集不全
+    # 网站登录不稳定，数据收集可能不全
     # GD = GuangDong(
     #     website='https://zlxk.gpic.gd.cn/#/licensingPatent',
     #     next_page_xpath="/html//el-content-right[@id='content-wrapper-right']/div[@class='pagination-container']//input[@type='number']",
@@ -118,15 +118,14 @@ if __name__=='__main__':
     # 数据量太大，内存不够
     # ZJ = ZheJiang(
     #     website='https://www.zjipx.com/kfxk.html#/kfxkList',
-    #     nextpage_xpath="//body/div[@id='app']/div[1]/div[2]/div[1]/div[5]/div[1]/div[1]/div[2]/ul[1]/li[10]",
-    #     pagenum_xpath="//body/div[@id='app']/div[1]/div[2]/div[1]/div[5]/div[1]/div[1]/div[2]/ul[1]",
-    #     rownum_xpath="//body/div[@id='app']/div[1]/div[2]/div[1]/div[5]/div[1]/div[1]/div[1]/ul[1]",
-    #     rownum_class_name="",
-    #     totalnum_xpath=""
+    #     next_page_xpath="/html//div[@id='app']//div[@class='ant-spin-nested-loading']/div[@class='ant-spin-container']//ul[@class='ant-pagination']/li[@title='下一页']",
+    #     bar_xpath="//body/div[@id='app']/div[1]/div[2]/div[1]/div[5]/div[1]/div[1]/div[2]/ul[1]",
+    #     bar_child_tag_name="li",
+    #     n_page_offset=2
     # )
     # print("浙江")
     # ZJ.start()
-    # ZJ.exportData(os.path.join(base_path,"浙江省.xlsx"))
+    # ZJ.exportData(os.path.join(base_path,"浙江省_free.xlsx"))
 
     # SH = ShangHai(
     #     website='https://www.shsipe.com/property-page/#/openlist',

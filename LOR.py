@@ -138,70 +138,83 @@ class ShangHai(Reptiles_XHR):
         return data_json
 
 class ZheJiang(Reptiles):
+    def start(self):
+        self.openWebSite(self.website)
+        self.br.find_element(By.XPATH, "//div[contains(text(),'免费')]").click()
+        print("免费")
+        df1 = self.collectData()
+        print(df1)
+        self.data = df1
+        # self.br.find_element(By.XPATH, "//div[contains(text(),'收费')]").click()
+        # print("收费")
+        # df2 = self.collectData()
+        # print(df2)
+        # self.br.find_element(By.XPATH, "//div[contains(text(),'绿色')]").click()
+        # print("绿色")
+        # df3 = self.collectData()
+        # self.data = pd.concat([df1, df2, df3]).drop_duplicates()
+        # print(self.data)
+        self.br.quit()
     def collectData(self):
-        href_list_1 = self.collectCategoryData("免费", "//div[contains(text(),'免费')]")
-        href_list_2 = self.collectCategoryData("收费", "//div[contains(text(),'收费')]")
-        href_list_3 = self.collectCategoryData("绿色", "//div[contains(text(),'绿色')]")
-        href_list = href_list_1 + href_list_2 + href_list_3
+        while(True):
+            try:
+                n_page = self.getPageNum()
+            except exceptions.NoSuchElementException:
+                continue
+            else:
+                break
+
+        print("共", n_page, "页")
+        href_list = []
+        for page_i in range(1, n_page+1):
+            for a_dom in self.br.find_elements(By.CLASS_NAME, "xmjs-img"):
+                href_list.append(a_dom.get_attribute('href'))
+            print(page_i, "页")
+            if page_i < n_page:
+                self.nextPage()
+                time.sleep(0.15)
         for href in href_list:
             self.br.execute_script("window.open(arguments[0],'_self','')", href)
             self.br.back()
-            time.sleep(0.1)
-        detail_list, data_list = self.getRequestId()
-        data_1 = []
-        data_2 = []
-        for id in detail_list:
-            data_1.append(self.getResponseBody("detail", id))
-        for id in data_list:
-            data_2.append(self.getResponseBody("data", id))
-        data_1 = pd.DataFrame(data_1)
-        data_2 = pd.DataFrame(data_2)
-        return data_1.set_index("id").join(data_2.set_index("id"), on="id", how="inner").reset_index().drop_duplicates()
+            time.sleep(0.2)
+        time.sleep(5)
+        detail, data = self.getRequestId()
+        df_detail = []
+        df_data = []
+        for id in detail:
+            df_detail.append(self.getResponseBody(id, "Detail"))
+        for id in data:
+            df_data.append(self.getResponseBody(id, "Data"))
+        df_detail = pd.DataFrame(df_detail)
+        df_data = pd.DataFrame(df_data)
+        return df_detail.set_index("id").join(df_data.set_index("id"), on="id", how="outer").reset_index().drop_duplicates()
 
-    def collectCategoryData(self, category_type, category_xpath):
-        self.br.find_element(By.XPATH, category_xpath).click()
-        self.br.find_element(By.XPATH, self.pagenum_xpath + "/li[3]").click()
-        n_page = self.getPageNum()
-        print(category_type, "共", n_page, "页")
-
-        href_list = []
-        for page_i in range(1, n_page+1):
-            rows = self.getRowNum(page_i, n_page)
-            print(page_i, "页", rows, "行")
-            for index in range(1, rows + 1):
-                href_list.append(
-                    self.br.find_element(By.XPATH,
-                                         self.rownum_xpath + "/li[" + str(index) + "]/a[1]").get_attribute('href')
-                )
-            if page_i < n_page:
-                self.nextPage()
-                time.sleep(0.5)
-        return href_list
-
-    def getResponseBody(self, type, requestId):
+    def getResponseBody(self, requestId, type):
         response_body = self.br.execute_cdp_cmd('Network.getResponseBody', {'requestId': requestId})
-        if type=="detail":
-            data = json.loads(response_body['body'])['data']
+        data = json.loads(response_body['body'])['data']
+        if type == "Detail":
             return {
                 'id': data['PrjId'],
-                'patent_owner_type': data['RIGHTTYPE'],
-                'license_fee': data['XKSYFBZSM'],
+                'licnese_fee': data['PdPrc'],
+                'license_fee_type': data['XKSYFBZ_NOTE'],
+                'license_fee_detail': data['XKSYFBZSM'],
                 'license_deadline': data['XKSMJMRQ1'],
-                'license_location': data['XKDYFW_NOTE'],
-                'license_period': data['DCXKQX']
+                'license_location': data['XKDYFW_NOTE']
             }
-        else:
-            data = json.loads(response_body['body'])['data'][0]
+        elif type == "Data":
+            data = data[0]
             return {
                 'id': data['tprj_info_ext_ID'],
                 'patent_id': data['ZLBH'],
                 'patent_type': data['ZLLX_NOTE'],
-                'patent_owner': data['ZLQR']
+                'patent_owner': data['ZLQR'],
+                'name': data['ZLMC']
             }
+
     def getRequestId(self):
         logs = self.br.get_log("performance")
-        log_xhr_detail_array = []
-        log_xhr_data_array = []
+        log_xhr_array_detail = []
+        log_xhr_array_data = []
         for log_data in logs:
             message_ = log_data['message']
             try:
@@ -212,29 +225,14 @@ class ZheJiang(Reptiles):
                     id = log['params']['requestId']
                     data_type = log['params']['response']['url']
                     if type_.upper() == "XHR":
-                        if data_type.find("Detail") != -1:
-                            log_xhr_detail_array.append(id)
-                        elif data_type.find("Data") != -1:
-                            log_xhr_data_array.append(id)
+                        if data_type.find('Detail') != -1:
+                            log_xhr_array_detail.append(id)
+                        elif data_type.find('Data') != -1:
+                            log_xhr_array_data.append(id)
             except:
                 pass
-        return log_xhr_detail_array, log_xhr_data_array
-    def nextPage(self):
-        bar = self.br.find_element(By.XPATH, self.pagenum_xpath)
-        bar_cnt = len(bar.find_elements(By.TAG_NAME, "li"))
-        next_btn = self.br.find_element(By.XPATH, self.pagenum_xpath + "/li[" + str(bar_cnt - 1) + "]/a[1]")
-        self.br.execute_script("arguments[0].click()", next_btn)
-        self.curr_page = self.curr_page + 1
+        return log_xhr_array_detail, log_xhr_array_data
 
-    def getPageNum(self):
-        bar = self.br.find_element(By.XPATH, self.pagenum_xpath)
-        bar_cnt = len(bar.find_elements(By.TAG_NAME, "li"))
-        return int(self.br.find_element(By.XPATH, self.pagenum_xpath + "/li[" + str(bar_cnt-2) + "]/a[1]").text)
-
-    def getRowNum(self, page_i, n_page):
-        menu_table = self.br.find_element(By.XPATH, self.rownum_xpath)
-        table_content = menu_table.find_elements(By.TAG_NAME, "li")
-        return len(table_content)
 
 class BeiJing(Reptiles_XHR):
     def getPageNum(self):
@@ -259,6 +257,14 @@ class BeiJing(Reptiles_XHR):
         return data_json
 
 class GuangDong(Reptiles_XHR):
+    def start(self):
+        self.openWebSite(self.website)
+        btn = self.br.find_element(By.XPATH, "//span[contains(text(),'2000条/页')]")
+        self.br.execute_script("arguments[0].click()", btn)
+        time.sleep(10)
+        self.data = self.collectData()
+        print(self.data)
+        self.br.quit()
     def getResponseBody(self, requestId):
         try:
             response_body = self.br.execute_cdp_cmd('Network.getResponseBody', {'requestId': requestId})
@@ -361,7 +367,7 @@ class JiangSu(Reptiles_XHR):
                 'patent_id': data[index][1],
                 'patent_type': patent_type_list[int(data[index][13]-1)],
                 'patent_owner': data[index][3],
-                'patent_owner_type': patent_owner_type_list[int(data[index][6])-1],
+                # 'patent_owner_type': patent_owner_type_list[int(data[index][6])-1],
                 'license_fee': data[index][9],
                 'license_fee_type': data[index][11],
                 'license_period': data[index][8],
