@@ -75,7 +75,7 @@ class GuangXi(Reptiles_XHR):
                 'license_fee': data['content'][index]['attr']['yczff_ycxqefy']['value'],
                 'license_fee_type': data['content'][index]['attr']['xkfybz']['value'],
                 'license_deadline': data['content'][index]['attr']['xkqxjmr']['value'],
-                'createTime': data['content'][index]['createTime']
+                'create_time': data['content'][index]['createTime']
             })
         return data_json
 
@@ -140,22 +140,30 @@ class ShangHai(Reptiles_XHR):
 class ZheJiang(Reptiles):
     def start(self):
         self.openWebSite(self.website)
-        self.br.find_element(By.XPATH, "//div[contains(text(),'免费')]").click()
-        print("免费")
-        df1 = self.collectData()
-        print(df1)
-        self.data = df1
-        # self.br.find_element(By.XPATH, "//div[contains(text(),'收费')]").click()
-        # print("收费")
-        # df2 = self.collectData()
-        # print(df2)
+        # self.br.find_element(By.XPATH, "//div[contains(text(),'免费')]").click()
+        # print("免费")
+        # df1 = self.collectData()
+        # self.data = df1
+        # print(df1)
+        self.br.find_element(By.XPATH, "//div[contains(text(),'收费')]").click()
+        print("收费")
+        df2 = self.collectData()
+        self.data = df2
+        print(df2)
         # self.br.find_element(By.XPATH, "//div[contains(text(),'绿色')]").click()
         # print("绿色")
         # df3 = self.collectData()
+        # self.data = df3
+        # print(df3)
         # self.data = pd.concat([df1, df2, df3]).drop_duplicates()
         # print(self.data)
         self.br.quit()
     def collectData(self):
+        self.br.execute_cdp_cmd('Network.enable', {'maxResourceBufferSize': 64000000})
+        # combox = self.br.find_element(By.XPATH, "//*[@id='app']/div/div[2]/div/div[5]/div/div/div[2]/ul/li[11]/div[1]")
+        # self.br.execute_script("arguments[0].click()", combox)
+        # page_type = self.br.find_element(By.XPATH, "/html/body/div[1]/div/div[2]/div/div[5]/div/div/div[2]/ul/li[11]/div[3]/div/div/div/ul/li[3]")
+        # self.br.execute_script("arguments[0].click()", page_type)
         while(True):
             try:
                 n_page = self.getPageNum()
@@ -163,39 +171,131 @@ class ZheJiang(Reptiles):
                 continue
             else:
                 break
-
         print("共", n_page, "页")
         href_list = []
-        for page_i in range(1, n_page+1):
-            for a_dom in self.br.find_elements(By.CLASS_NAME, "xmjs-img"):
-                href_list.append(a_dom.get_attribute('href'))
-            print(page_i, "页")
-            if page_i < n_page:
-                self.nextPage()
-                time.sleep(0.15)
+        
+        # 用于调试url失败的实例
+        start = 1
+        # input = self.br.find_element(By.XPATH, "//*[@id='app']/div/div[2]/div/div[5]/div/div/div[2]/ul/li[11]/div[2]/input")
+        # input.send_keys(start)
+        # input.send_keys(Keys.ENTER)
+        for page_i in range(start, n_page+1):
+          print(page_i, "页")
+          pool_xpath = "//*[@id='app']/div/div[2]/div/div[5]/div/div/div[1]/ul"
+          href_pool = self.br.find_element(By.XPATH, pool_xpath)
+          n_href = len(href_pool.find_elements(By.TAG_NAME, "li"))
+          for i in range(1, n_href+1):
+            print(i)
+            while(True):
+                try:
+                  href = self.br.find_element(By.XPATH, pool_xpath + "/li["+str(i)+"]/a").get_attribute('href')
+                except exceptions.StaleElementReferenceException:
+                  continue
+                except exceptions.NoSuchElementException:
+                  break
+                else:
+                  break
+            href_list.append(href)
+          self.nextPage()
+          time.sleep(0.2)
+
+        # dom定位
+        # data = []
+        # for href in href_list:
+        #     print(href)
+        #     if href == "https://www.zjipx.com/kfxk.html#/kfxkDetail?id=11115&djly=5":
+        #         continue
+        #     self.br.execute_script("window.open(arguments[0],'_self','')", href)
+        #     res = self.getTuple()
+        #     if res is not None:
+        #         data.append(res)
+        #     self.br.back()
+        # res = pd.DataFrame(data)
+        # return res
+
+        # url请求
         for href in href_list:
+            print(href)
             self.br.execute_script("window.open(arguments[0],'_self','')", href)
-            self.br.back()
             time.sleep(0.2)
+            self.br.back()
         time.sleep(5)
         detail, data = self.getRequestId()
         df_detail = []
         df_data = []
         for id in detail:
-            df_detail.append(self.getResponseBody(id, "Detail"))
+            kfxkDetail = self.getResponseBody(id, "Detail")
+            if kfxkDetail is not None:
+                df_detail.append(kfxkDetail)
         for id in data:
-            df_data.append(self.getResponseBody(id, "Data"))
+            kfxkZIData = self.getResponseBody(id, "Data")
+            if kfxkZIData is not None:
+                df_data.append(kfxkZIData)
         df_detail = pd.DataFrame(df_detail)
         df_data = pd.DataFrame(df_data)
-        return df_detail.set_index("id").join(df_data.set_index("id"), on="id", how="outer").reset_index().drop_duplicates()
-
+        print(df_detail)
+        print(df_data)
+        df = df_detail.set_index("id").join(df_data.set_index("id"), on="id", how="outer").reset_index().drop_duplicates()
+        res = df.drop(columns='id')
+        return res
+    
+    def getTuple(self):
+        try_time = 0
+        flag = False
+        while(try_time<100):
+            try:
+                license_btn = self.br.find_element(By.XPATH, "//*[@id='app']/div/div[2]/div/div[2]/div[2]/div/div[1]/div/div/div/div/div[1]/div[3]")
+                try_time = try_time + 1
+            except exceptions.NoSuchElementException:
+                continue
+            else:
+              flag = True
+              self.br.execute_script("arguments[0].click()", license_btn)
+              tmp = self.br.find_element(By.XPATH, "//*[@id='app']/div/div[2]/div/div[2]/div[2]/div/div[3]/div[3]/ul/li[7]/span[1]")
+              if tmp.text!="其他约定事项：":
+                  continue
+              else:
+                  break
+        if flag == False:
+            return
+        # 因为浙江lor网址有部分专利不存在patent_type
+        try:
+            patent_type = self.br.find_element(By.XPATH, "//*[@id='app']/div/div[2]/div/div[2]/div[1]/div[4]/div/div[1]/div/p[1]/span[2]/span[2]").text
+        except exceptions.NoSuchElementException:
+            patent_type = ""
+        # 由于网络连接不稳定造成的
+        while(True):
+            try:
+                res= {
+                    'patent_id': self.br.find_element(By.XPATH, "//*[@id='app']/div/div[2]/div/div[2]/div[1]/div[4]/div/div[1]/p/span[2]").text[4:],
+                    'patent_type': patent_type,
+                    'patent_owner':  self.br.find_element(By.XPATH, "//*[@id='app']/div/div[2]/div/div[2]/div[1]/div[4]/div/div[1]/div/p[2]/span[6]").text,
+                    'license_fee': self.br.find_element(By.XPATH, "//*[@id='app']/div/div[2]/div/div[2]/div[1]/div[2]/div[4]/div[1]/table/tr/td[1]").text,
+                    'license_fee_type': self.br.find_element(By.XPATH, "//*[@id='app']/div/div[2]/div/div[2]/div[2]/div/div[3]/div[3]/ul/li[5]/span[2]").text,
+                    'license_fee_detail': self.br.find_element(By.XPATH, "//*[@id='app']/div/div[2]/div/div[2]/div[2]/div/div[3]/div[3]/ul/li[6]/span[2]").text,
+                    'license_deadline': self.br.find_element(By.XPATH, "//*[@id='app']/div/div[2]/div/div[2]/div[2]/div/div[3]/div[3]/ul/li[1]/span[2]").text,
+                    'license_location': self.br.find_element(By.XPATH, "//*[@id='app']/div/div[2]/div/div[2]/div[2]/div/div[3]/div[3]/ul/li[3]/span[2]").text
+                }
+            except exceptions.NoSuchElementException:
+                continue
+            else:
+                break
+        return res
+        
     def getResponseBody(self, requestId, type):
-        response_body = self.br.execute_cdp_cmd('Network.getResponseBody', {'requestId': requestId})
+        try:
+            response_body = self.br.execute_cdp_cmd('Network.getResponseBody', {'requestId': requestId})
+        except exceptions.WebDriverException:
+            print("response fail")
+            return
+        if json.loads(response_body['body'])['code']!=200:
+            print("网站服务器500")
+            return
         data = json.loads(response_body['body'])['data']
         if type == "Detail":
             return {
                 'id': data['PrjId'],
-                'licnese_fee': data['PdPrc'],
+                'license_fee': data['PdPrc'],
                 'license_fee_type': data['XKSYFBZ_NOTE'],
                 'license_fee_detail': data['XKSYFBZSM'],
                 'license_deadline': data['XKSMJMRQ1'],
@@ -205,10 +305,10 @@ class ZheJiang(Reptiles):
             data = data[0]
             return {
                 'id': data['tprj_info_ext_ID'],
+                'patent_name': data['ZLMC'],
                 'patent_id': data['ZLBH'],
                 'patent_type': data['ZLLX_NOTE'],
-                'patent_owner': data['ZLQR'],
-                'name': data['ZLMC']
+                'patent_owner': data['ZLQR']
             }
 
     def getRequestId(self):
@@ -542,7 +642,7 @@ class TianJin(Reptiles_DOM):
             'license_deadline': license_deadline,
             'license_fee_type': license_fee_type,
             'license_fee_detail': license_fee_detail,
-            'effective_date': effective_date
+            # 'effective_date': effective_date
         }
 
 class AnHui(Reptiles_DOM):

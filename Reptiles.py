@@ -31,6 +31,9 @@ class Reptiles(object):
         chrome_options.add_experimental_option("prefs", prefs)
         chrome_options.add_argument("--disk-cache-size=1073741824")
         chrome_options.add_argument("--media-cache-size=1073741824")
+        chrome_options.add_argument('-ignore-certificate-errors')
+        chrome_options.add_argument('-ignore -ssl-errors')
+        chrome_options.add_experimental_option("excludeSwitches", ['enable-automation', 'enable-logging'])
         caps = DesiredCapabilities.CHROME
         caps["goog:loggingPrefs"] = {"performance": "ALL"}
         self.br = webdriver.Chrome(desired_capabilities=caps, options=chrome_options)
@@ -51,7 +54,8 @@ class Reptiles(object):
     def openWebSite(self, website):
         self.br.get(website)
         self.br.maximize_window()
-        self.br.implicitly_wait(10)
+        time.sleep(5)
+        self.br.implicitly_wait(5)
         # zoom_out = "document.body.style.zoom='0.25'"
         # self.br.execute_script(zoom_out)
     def nextPage(self):
@@ -62,7 +66,8 @@ class Reptiles(object):
         bar = self.br.find_element(By.XPATH, self.bar_xpath)
         n_bar_child = len(bar.find_elements(By.TAG_NAME, self.bar_child_tag_name))
         n_page_xpath = self.bar_xpath + "/" + self.bar_child_tag_name + "[" + str(n_bar_child - self.n_page_offset) + "]"
-        return int(self.br.find_element(By.XPATH, n_page_xpath).text)
+        n_page = self.br.find_element(By.XPATH, n_page_xpath)
+        return int(n_page.text)
     def collectData(self):
         pass
 
