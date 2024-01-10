@@ -130,16 +130,16 @@ if __name__=='__main__':
     # BJ.exportData(os.path.join(base_path,"北京省.xlsx"))
 
     # 数据量太大，内存不够
-    ZJ = ZheJiang(
-        website='https://www.zjipx.com/kfxk.html#/kfxkList',
-        next_page_xpath="/html//div[@id='app']//div[@class='ant-spin-nested-loading']/div[@class='ant-spin-container']//ul[@class='ant-pagination']/li[@title='下一页']",
-        bar_xpath="//body/div[@id='app']/div[1]/div[2]/div[1]/div[5]/div[1]/div[1]/div[2]/ul[1]",
-        bar_child_tag_name="li",
-        n_page_offset=2
-    )
-    print("浙江")
-    ZJ.start()
-    ZJ.exportData(os.path.join(base_path,"浙江省_charge.xlsx"))
+    # ZJ = ZheJiang(
+    #     website='https://www.zjipx.com/kfxk.html#/kfxkList',
+    #     next_page_xpath="/html//div[@id='app']//div[@class='ant-spin-nested-loading']/div[@class='ant-spin-container']//ul[@class='ant-pagination']/li[@title='下一页']",
+    #     bar_xpath="//body/div[@id='app']/div[1]/div[2]/div[1]/div[5]/div[1]/div[1]/div[2]/ul[1]",
+    #     bar_child_tag_name="li",
+    #     n_page_offset=2
+    # )
+    # print("浙江")
+    # ZJ.start()
+    # ZJ.exportData(os.path.join(base_path,"浙江省_charge.xlsx"))
 
     # SH = ShangHai(
     #     website='https://www.shsipe.com/property-page/#/openlist',
@@ -198,23 +198,23 @@ if __name__=='__main__':
     # HuN.start()
     # HuN.exportData(os.path.join(base_path,"湖南省.xlsx"))
 
-    # all_data = []
+    all_data = []
 
-    # for filename in os.listdir(base_path):
-    #     if filename.endswith('省.xlsx'):
-    #         file_path = os.path.join(base_path, filename)
-    #         data = process_file(file_path)
-    #         all_data.append(data)
+    for filename in os.listdir(base_path):
+        if filename.endswith('.xlsx'):
+            file_path = os.path.join(base_path, filename)
+            data = process_file(file_path)
+            all_data.append(data)
 
-    # # 合并所有文件的数据
-    # final_data = pd.concat(all_data, ignore_index=True)
+    # 合并所有文件的数据
+    final_data = pd.concat(all_data, ignore_index=True)
 
-    # final_data['patent_id'] = final_data['patent_id'].apply(extract_middle_12_digits)
+    final_data['patent_id'] = final_data['patent_id'].apply(extract_middle_12_digits)
 
-    # final_data = final_data.explode('patent_id')
+    final_data = final_data.explode('patent_id')
 
-    # final_data.reset_index(drop=True, inplace=True)
+    final_data.reset_index(drop=True, inplace=True)
 
-    # final_data.rename(columns={'patent_id': 'appln_nr'}, inplace=True)
+    final_data.rename(columns={'patent_id': 'appln_nr'}, inplace=True)
 
-    # final_data.to_excel(os.path.join(base_path, 'lor_data.xlsx'), index=False)
+    final_data.to_excel(os.path.join(base_path, 'lor_data.xlsx'), index=False)
